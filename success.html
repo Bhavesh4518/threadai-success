@@ -109,6 +109,17 @@
             Open ThreadAi Extension
         </button>
 
+        <div id="installPrompt"
+            style="display: none; margin-top: 20px; padding: 15px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px;">
+            <p style="margin: 0; color: #856404;">
+                <strong>Extension Not Found!</strong><br>
+                Please install the ThreadAi extension first, then return to this page.
+            </p>
+            <a href="chrome://extensions/" class="btn" style="margin-top: 10px; display: inline-block;">
+                Open Extensions Page
+            </a>
+        </div>
+
         <p style="font-size: 12px; color: #999; margin-top: 30px;">
             Having issues? <a href="mailto:support@threadai.com">Contact Support</a>
         </p>
@@ -118,21 +129,34 @@
         // Get URL parameters - Lemon Squeezy might pass different parameter names
         const urlParams = new URLSearchParams(window.location.search);
 
-        // Try multiple parameter name formats that Lemon Squeezy might use
-        const sessionId = urlParams.get('session_id') ||
+        // Get parameters and handle placeholder strings
+        let sessionId = urlParams.get('session_id') ||
             urlParams.get('checkout_custom_session_id') ||
-            urlParams.get('custom_session_id') ||
-            generateFallbackSessionId();
+            urlParams.get('custom_session_id');
 
-        const planId = urlParams.get('plan_id') ||
+        let planId = urlParams.get('plan_id') ||
             urlParams.get('checkout_custom_plan_id') ||
-            urlParams.get('custom_plan_id') ||
-            'monthly';
+            urlParams.get('custom_plan_id');
 
-        const timestamp = urlParams.get('timestamp') ||
+        let timestamp = urlParams.get('timestamp') ||
             urlParams.get('checkout_custom_timestamp') ||
-            urlParams.get('custom_timestamp') ||
-            Date.now().toString();
+            urlParams.get('custom_timestamp');
+
+        // Check if we got placeholder strings instead of actual values
+        if (!sessionId || sessionId.includes('checkout_custom') || sessionId.includes('{')) {
+            console.log('⚠️ Session ID is placeholder, generating new one');
+            sessionId = generateFallbackSessionId();
+        }
+
+        if (!planId || planId.includes('checkout_custom') || planId.includes('{')) {
+            console.log('⚠️ Plan ID is placeholder, using default');
+            planId = 'monthly';
+        }
+
+        if (!timestamp || timestamp.includes('checkout_custom') || timestamp.includes('{')) {
+            console.log('⚠️ Timestamp is placeholder, using current time');
+            timestamp = Date.now().toString();
+        }
 
         // Fallback session ID generation
         function generateFallbackSessionId() {
@@ -162,10 +186,16 @@
                 activateBtn.disabled = true;
 
                 // Try to communicate with extension
-                if (typeof chrome !== 'undefined' && chrome.runtime) {
-                    // We're in a Chrome context, try to message the extension
-                    const extensionId = 'ifnbemppljpgmpfilfkkkonjpeomhcfl'; // Your extension ID
+                const extensionId = 'ifnbemppljpgmpfilfkkkonjpeomhcfl'; // Your extension ID
 
+                console.log('🔌 Attempting to connect to extension:', extensionId);
+
+                // Check if Chrome extension APIs are available
+                if (typeof chrome === 'undefined' || !chrome.runtime) {
+                    throw new Error('Chrome extension APIs not available. Please make sure you are using Chrome browser.');
+                }
+
+                try {
                     const response = await chrome.runtime.sendMessage(extensionId, {
                         action: 'PAYMENT_SUCCESS',
                         payload: {
@@ -180,6 +210,8 @@
                         }
                     });
 
+                    console.log('📨 Extension response:', response);
+
                     if (response && response.success) {
                         statusDiv.className = 'status success';
                         statusDiv.innerHTML = '✅ Premium features activated successfully!';
@@ -188,17 +220,30 @@
                     } else {
                         throw new Error(response?.error || 'Failed to activate premium');
                     }
-                } else {
-                    // Fallback: Open extension directly
-                    openExtensionDirectly();
+                } catch (extensionError) {
+                    console.error('Extension communication failed:', extensionError);
+
+                    // Check if extension is installed
+                    if (extensionError.message.includes('Could not establish connection')) {
+                        throw new Error('ThreadAi extension not found. Please make sure the extension is installed and enabled.');
+                    } else {
+                        throw extensionError;
+                    }
                 }
             } catch (error) {
                 console.error('Activation error:', error);
                 statusDiv.className = 'status error';
-                statusDiv.innerHTML = '⚠️ Please open your ThreadAi extension manually to complete activation.';
+
+                if (error.message.includes('extension not found') || error.message.includes('Could not establish connection')) {
+                    statusDiv.innerHTML = '⚠️ ThreadAi extension not found. Please install the extension first.';
+                    document.getElementById('installPrompt').style.display = 'block';
+                } else {
+                    statusDiv.innerHTML = '⚠️ Please open your ThreadAi extension manually to complete activation.';
+                    extensionBtn.style.display = 'inline-block';
+                }
+
                 activateBtn.textContent = 'Try Again';
                 activateBtn.disabled = false;
-                extensionBtn.style.display = 'inline-block';
             }
         }
 
