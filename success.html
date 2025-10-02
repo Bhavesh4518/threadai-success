@@ -115,13 +115,41 @@
     </div>
 
     <script>
-        // Get URL parameters
+        // Get URL parameters - Lemon Squeezy might pass different parameter names
         const urlParams = new URLSearchParams(window.location.search);
-        const sessionId = urlParams.get('session_id') || urlParams.get('checkout_custom_session_id');
-        const planId = urlParams.get('plan_id') || urlParams.get('checkout_custom_plan_id');
-        const timestamp = urlParams.get('timestamp') || urlParams.get('checkout_custom_timestamp');
 
-        console.log('🎉 Payment success page loaded', { sessionId, planId, timestamp });
+        // Try multiple parameter name formats that Lemon Squeezy might use
+        const sessionId = urlParams.get('session_id') ||
+            urlParams.get('checkout_custom_session_id') ||
+            urlParams.get('custom_session_id') ||
+            generateFallbackSessionId();
+
+        const planId = urlParams.get('plan_id') ||
+            urlParams.get('checkout_custom_plan_id') ||
+            urlParams.get('custom_plan_id') ||
+            'monthly';
+
+        const timestamp = urlParams.get('timestamp') ||
+            urlParams.get('checkout_custom_timestamp') ||
+            urlParams.get('custom_timestamp') ||
+            Date.now().toString();
+
+        // Fallback session ID generation
+        function generateFallbackSessionId() {
+            const now = Date.now();
+            const random = Math.random().toString(36).substring(2, 15);
+            return btoa(`${now}-${random}-payment`).replace(/[^a-zA-Z0-9]/g, '').substring(0, 16);
+        }
+
+        // Log all URL parameters to see what Lemon Squeezy actually sends
+        console.log('🎉 Payment success page loaded');
+        console.log('📋 All URL parameters:', Object.fromEntries(urlParams));
+        console.log('🔑 Extracted values:', { sessionId, planId, timestamp });
+
+        // Also check for common Lemon Squeezy parameters
+        const orderId = urlParams.get('order_id') || urlParams.get('checkout_id');
+        const email = urlParams.get('email') || urlParams.get('customer_email');
+        console.log('💳 Payment info:', { orderId, email });
 
         async function activateExtension() {
             const statusDiv = document.getElementById('status');
@@ -145,7 +173,10 @@
                             planId: planId || 'monthly',
                             timestamp: timestamp ? parseInt(timestamp) : Date.now(),
                             premium: true,
-                            source: 'web_success_page'
+                            source: 'web_success_page',
+                            orderId: orderId,
+                            email: email,
+                            allParams: Object.fromEntries(urlParams) // Send all parameters for debugging
                         }
                     });
 
