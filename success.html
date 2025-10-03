@@ -194,17 +194,40 @@
                 return customPlan;
             }
 
+            // Check URL hash for plan info
+            const hash = window.location.hash.toLowerCase();
+            if (hash.includes('monthly')) return 'monthly';
+            if (hash.includes('quarterly')) return 'quarterly';
+            if (hash.includes('lifetime')) return 'lifetime';
+
             // Fallback: detect from referrer or URL patterns
             const url = window.location.href.toLowerCase();
             const referrer = document.referrer.toLowerCase();
 
-            // Check for Lemon Squeezy checkout URLs
-            if (referrer.includes('11daa790-271f-4c8a') || url.includes('monthly')) return 'monthly';
-            if (referrer.includes('2e110581-a036-4eae') || url.includes('quarterly')) return 'quarterly';
-            if (referrer.includes('1a13d48e-9cf8-4f41') || url.includes('lifetime')) return 'lifetime';
+            console.log('🔍 Checking referrer:', referrer);
+            console.log('🔍 Current URL:', url);
 
-            // Final fallback
-            console.log('⚠️ Could not detect plan, using quarterly as default');
+            // Check for Lemon Squeezy checkout URLs with full IDs
+            if (referrer.includes('11daa790-271f-4c8a-99a8-66a70257c8de') || url.includes('monthly')) {
+                console.log('✅ Detected monthly plan');
+                return 'monthly';
+            }
+            if (referrer.includes('2e110581-a036-4eae-ae77-d13f722b86b4') || url.includes('quarterly')) {
+                console.log('✅ Detected quarterly plan');
+                return 'quarterly';
+            }
+            if (referrer.includes('1a13d48e-9cf8-4f41-bfdb-2bd7a5e6100e') || url.includes('lifetime')) {
+                console.log('✅ Detected lifetime plan');
+                return 'lifetime';
+            }
+
+            // Check for price indicators
+            if (url.includes('2.99') || referrer.includes('2.99')) return 'monthly';
+            if (url.includes('8.99') || referrer.includes('8.99')) return 'quarterly';
+            if (url.includes('28.99') || referrer.includes('28.99')) return 'lifetime';
+
+            // Since you chose quarterly, default to that
+            console.log('⚠️ Could not detect plan, defaulting to quarterly (your choice)');
             return 'quarterly';
         }
 
@@ -212,44 +235,78 @@
         async function activatePremium() {
             const plan = getPlanFromUrl();
             console.log('🎉 Activating premium plan:', plan);
-
+            
             try {
-                // Get existing trial data to preserve fingerprint
-                const existing = await new Promise((resolve) => {
-                    chrome.storage.sync.get(['threadai_trial_data'], (result) => {
-                        resolve(result.threadai_trial_data || {});
-                    });
-                });
-
-                // Create premium data preserving security info
-                const premiumData = {
-                    ...existing,
-                    isPaidUser: true,
-                    userPlanId: plan,
-                    purchaseDate: new Date().toISOString(),
-                    trialStarted: true,
-                    paymentVerified: true,
-                    activationSource: 'lemon_squeezy_success'
-                };
-
-                // Save to Chrome storage
-                chrome.storage.sync.set({
-                    threadai_trial_data: premiumData
-                }, () => {
-                    console.log('✅ Premium activated in storage with plan:', plan);
-                    showSuccess();
-
-                    // Also save activation timestamp for verification
-                    chrome.storage.local.set({
-                        'threadai_last_activation': Date.now(),
-                        'threadai_activation_plan': plan
-                    });
-                });
-
+                // Check if we're in extension context
+                if (typeof chrome !== 'undefined' && chrome.storage) {
+                    // We're in extension context - use direct storage
+                    await activateInExtension(plan);
+                } else {
+                    // We're on external page - use localStorage method
+                    await activateViaLocalStorage(plan);
+                }
+                
             } catch (error) {
                 console.error('❌ Activation error:', error);
                 showActivationError();
             }
+        }
+
+        // Activate premium directly in extension context
+        async function activateInExtension(plan) {
+            const existing = await new Promise((resolve) => {
+                chrome.storage.sync.get(['threadai_trial_data'], (result) => {
+                    resolve(result.threadai_trial_data || {});
+                });
+            });
+
+            const premiumData = {
+                ...existing,
+                isPaidUser: true,
+                userPlanId: plan,
+                purchaseDate: new Date().toISOString(),
+                trialStarted: true,
+                paymentVerified: true,
+                activationSource: 'lemon_squeezy_success'
+            };
+
+            chrome.storage.sync.set({ threadai_trial_data: premiumData }, () => {
+                console.log('✅ Premium activated in storage with plan:', plan);
+                showSuccess();
+                
+                chrome.storage.local.set({
+                    'threadai_last_activation': Date.now(),
+                    'threadai_activation_plan': plan
+                });
+            });
+        }
+
+        // Activate premium via localStorage (for external page)
+        async function activateViaLocalStorage(plan) {
+            console.log('📡 Activating premium via localStorage method...');
+            
+            // Store activation data in localStorage for extension to pick up
+            const activationData = {
+                isPaidUser: true,
+                userPlanId: plan,
+                purchaseDate: new Date().toISOString(),
+                trialStarted: true,
+                paymentVerified: true,
+                activationSource: 'lemon_squeezy_success',
+                activationTimestamp: Date.now()
+            };
+            
+            // Store in localStorage with a special key
+            localStorage.setItem('threadai_premium_activation', JSON.stringify(activationData));
+            
+            console.log('✅ Activation data stored in localStorage');
+            showSuccess();
+            
+            // Show instructions to user
+            setTimeout(() => {
+                const status = document.getElementById('status');
+                status.innerHTML = '✅ Payment successful! Please open the ThreadAi extension to complete activation.';
+            }, 2000);
         }
 
         // Show success status
