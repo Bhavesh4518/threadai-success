@@ -284,10 +284,31 @@
         function detectPlan() {
             console.log('🔍 Detecting plan from URL:', window.location.href);
             
-            // Method 1: Check URL parameters (Lemon Squeezy adds these after purchase)
             const urlParams = new URLSearchParams(window.location.search);
-            const possiblePlanParams = ['plan', 'variant', 'variant_name', 'product', 'product_name'];
+            console.log('🔧 All URL parameters:', Object.fromEntries(urlParams.entries()));
             
+            // Method 1: Check variant_id (you'll need to get these from your Lemon Squeezy dashboard)
+            const variantId = urlParams.get('variant_id') || urlParams.get('variant');
+            if (variantId) {
+                console.log('📋 Found variant_id:', variantId);
+                
+                // TODO: Replace these with your actual Lemon Squeezy variant IDs
+                // You can find these in your Lemon Squeezy dashboard
+                const variantMapping = {
+                    // Replace with your actual variant IDs from Lemon Squeezy
+                    'your_monthly_variant_id': 'monthly',
+                    'your_quarterly_variant_id': 'quarterly', 
+                    'your_lifetime_variant_id': 'lifetime'
+                };
+                
+                if (variantMapping[variantId]) {
+                    console.log('✅ Mapped variant to plan:', variantMapping[variantId]);
+                    return variantMapping[variantId];
+                }
+            }
+            
+            // Method 2: Check for plan name in various parameters
+            const possiblePlanParams = ['plan', 'variant_name', 'product_name', 'item_name'];
             for (const param of possiblePlanParams) {
                 const value = urlParams.get(param);
                 if (value) {
@@ -301,22 +322,21 @@
                 }
             }
             
-            // Method 2: Check URL path and hash
+            // Method 3: Check URL for plan indicators
             const fullUrl = window.location.href.toLowerCase();
             if (fullUrl.includes('monthly') && !fullUrl.includes('3')) return 'monthly';
-            if (fullUrl.includes('quarterly') || fullUrl.includes('3-month') || fullUrl.includes('quarter')) return 'quarterly';
+            if (fullUrl.includes('quarterly') || fullUrl.includes('3-month')) return 'quarterly';
             if (fullUrl.includes('lifetime') || fullUrl.includes('life')) return 'lifetime';
             
-            // Method 3: Check for price indicators in URL
+            // Method 4: Check for price indicators
             if (fullUrl.includes('2.99') || fullUrl.includes('299')) return 'monthly';
             if (fullUrl.includes('8.99') || fullUrl.includes('899')) return 'quarterly';
             if (fullUrl.includes('28.99') || fullUrl.includes('2899')) return 'lifetime';
             
-            // Method 4: Log all URL parameters for debugging
-            console.log('🔧 All URL parameters:', Object.fromEntries(urlParams.entries()));
-            console.log('⚠️ Could not detect specific plan from URL, using fallback');
+            console.log('⚠️ Could not detect specific plan from URL');
+            console.log('💡 Tip: Add variant_id to success URL or check Lemon Squeezy webhook data');
             
-            // Since detection failed, return 'premium' and let user know
+            // Return premium as fallback
             return 'premium';
         }
 
