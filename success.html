@@ -206,6 +206,14 @@
     <script>
         // Get plan from URL parameters
         function getPlanFromUrl() {
+            // 0. Check for user-confirmed plan first
+            const confirmedPlan = sessionStorage.getItem('confirmed_plan');
+            if (confirmedPlan) {
+                console.log('✅ Plan confirmed by user:', confirmedPlan);
+                sessionStorage.removeItem('confirmed_plan'); // Clean up
+                return confirmedPlan;
+            }
+
             const urlParams = new URLSearchParams(window.location.search);
             const customPlan = urlParams.get('custom_plan');
 
@@ -214,14 +222,11 @@
                 return customPlan;
             }
 
-            // Check stored plan from extension (when user clicked checkout)
-            const storedPlan = localStorage.getItem('threadai_selected_plan') || sessionStorage.getItem('threadai_selected_plan');
-            if (storedPlan) {
-                console.log('✅ Plan detected from stored selection:', storedPlan);
-                // Clean up the stored plan
-                localStorage.removeItem('threadai_selected_plan');
-                sessionStorage.removeItem('threadai_selected_plan');
-                return storedPlan;
+            // Check for custom checkout data in URL
+            const checkoutPlan = urlParams.get('checkout[custom][plan]') || urlParams.get('plan');
+            if (checkoutPlan) {
+                console.log('✅ Plan detected from checkout data:', checkoutPlan);
+                return checkoutPlan;
             }
 
             // Check URL hash
@@ -237,17 +242,38 @@
             console.log('🔍 Checking referrer:', referrer);
             console.log('🔍 Current URL:', currentUrl);
 
-            // Check for Lemon Squeezy product IDs in referrer
-            if (referrer.includes('11daa790-271f-4c8a-99a8-66a70257c8de')) {
-                console.log('✅ Detected monthly plan from referrer');
+            // Enhanced referrer detection - check browser history and session
+            try {
+                // Check if we can access browser history or session data
+                const historyLength = window.history.length;
+                console.log('🔍 Browser history length:', historyLength);
+
+                // Check session storage for any plan indicators
+                for (let i = 0; i < sessionStorage.length; i++) {
+                    const key = sessionStorage.key(i);
+                    const value = sessionStorage.getItem(key);
+                    if (key && (key.includes('plan') || key.includes('checkout') || key.includes('lemon'))) {
+                        console.log('🔍 Found session data:', key, value);
+                    }
+                }
+            } catch (e) {
+                console.log('🔍 Cannot access browser history/session');
+            }
+
+            // Check for Lemon Squeezy product IDs in referrer and current URL
+            const fullUrl = window.location.href;
+            const allUrls = [referrer, currentUrl, fullUrl, document.URL].join(' ').toLowerCase();
+
+            if (allUrls.includes('11daa790-271f-4c8a-99a8-66a70257c8de') || allUrls.includes('monthly')) {
+                console.log('✅ Detected monthly plan from URL analysis');
                 return 'monthly';
             }
-            if (referrer.includes('2e110581-a036-4eae-ae77-d13f722b86b4')) {
-                console.log('✅ Detected quarterly plan from referrer');
+            if (allUrls.includes('2e110581-a036-4eae-ae77-d13f722b86b4') || allUrls.includes('quarterly')) {
+                console.log('✅ Detected quarterly plan from URL analysis');
                 return 'quarterly';
             }
-            if (referrer.includes('1a13d48e-9cf8-4f41-bfdb-2bd7a5e6100e')) {
-                console.log('✅ Detected lifetime plan from referrer');
+            if (allUrls.includes('1a13d48e-9cf8-4f41-bfdb-2bd7a5e6100e') || allUrls.includes('lifetime')) {
+                console.log('✅ Detected lifetime plan from URL analysis');
                 return 'lifetime';
             }
 
@@ -256,9 +282,74 @@
             if (currentUrl.includes('8.99') || referrer.includes('8.99')) return 'quarterly';
             if (currentUrl.includes('28.99') || referrer.includes('28.99')) return 'lifetime';
 
-            // Default to quarterly (most popular plan) - no user prompt needed
-            console.log('⚠️ Could not auto-detect plan, defaulting to quarterly');
-            return 'quarterly';
+            // Show a user-friendly plan confirmation
+            console.log('⚠️ Could not auto-detect plan, asking user to confirm');
+            return showPlanConfirmation();
+        }
+
+        // Show user-friendly plan confirmation
+        function showPlanConfirmation() {
+            return new Promise((resolve) => {
+                // Update the page to show plan selection
+                const container = document.querySelector('.container');
+                container.innerHTML = `
+                    <div class="success-icon">🎉</div>
+                    <h1>Payment Successful!</h1>
+                    <p>Please confirm which plan you purchased to activate the correct premium tier:</p>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 12px; margin: 30px 0;">
+                        <button onclick="confirmPlan('monthly')" style="
+                            background: #4299e1;
+                            color: white;
+                            border: none;
+                            padding: 15px 25px;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            font-weight: 600;
+                            font-size: 16px;
+                        ">Monthly Plan - $2.99/month</button>
+                        
+                        <button onclick="confirmPlan('quarterly')" style="
+                            background: #10b981;
+                            color: white;
+                            border: none;
+                            padding: 15px 25px;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            font-weight: 600;
+                            font-size: 16px;
+                        ">Quarterly Plan - $8.99 (3 months)</button>
+                        
+                        <button onclick="confirmPlan('lifetime')" style="
+                            background: #805ad5;
+                            color: white;
+                            border: none;
+                            padding: 15px 25px;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            font-weight: 600;
+                            font-size: 16px;
+                        ">Lifetime Plan - $28.99 (one-time)</button>
+                    </div>
+                    
+                    <p style="font-size: 14px; color: #718096;">
+                        Click the plan you just purchased to activate your premium features.
+                    </p>
+                `;
+
+                // Add global function for plan confirmation
+                window.confirmPlan = (plan) => {
+                    console.log('✅ User confirmed plan:', plan);
+
+                    // Restore the original success page content
+                    location.reload(); // This will restart the activation with the confirmed plan
+
+                    // Store the confirmed plan for the reload
+                    sessionStorage.setItem('confirmed_plan', plan);
+
+                    resolve(plan);
+                };
+            });
         }
 
         // Activate premium in extension
