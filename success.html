@@ -172,7 +172,7 @@
         </div>
 
         <div style="margin-top: 24px;">
-            <button class="btn" onclick="openExtension()" id="openExtensionBtn" disabled>
+            <button class="btn" id="openExtensionBtn" disabled>
                 Open ThreadAi Extension
             </button>
             <a href="https://twitter.com" class="btn btn-secondary">Continue Browsing</a>
@@ -284,8 +284,19 @@
             alert('Please click on the ThreadAi extension icon in your browser toolbar to start using your premium features!');
         }
 
+        // Add event listener for open extension button
+        function setupEventListeners() {
+            const openBtn = document.getElementById('openExtensionBtn');
+            if (openBtn) {
+                openBtn.addEventListener('click', openExtension);
+            }
+        }
+
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
+            // Setup event listeners
+            setupEventListeners();
+
             // Try to activate premium
             try {
                 activatePremium();
