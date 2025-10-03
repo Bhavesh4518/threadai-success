@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -25,7 +26,7 @@
             background: white;
             padding: 40px;
             border-radius: 16px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             text-align: center;
             max-width: 500px;
             width: 100%;
@@ -33,8 +34,15 @@
         }
 
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .success-icon {
@@ -44,9 +52,22 @@
         }
 
         @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-10px); }
-            60% { transform: translateY(-5px); }
+
+            0%,
+            20%,
+            50%,
+            80%,
+            100% {
+                transform: translateY(0);
+            }
+
+            40% {
+                transform: translateY(-10px);
+            }
+
+            60% {
+                transform: translateY(-5px);
+            }
         }
 
         h1 {
@@ -139,12 +160,14 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="success-icon">🎉</div>
         <h1>Payment Successful!</h1>
-        <p>Welcome to ThreadAi Premium! Your account has been upgraded and you now have unlimited access to all features.</p>
-        
+        <p>Welcome to ThreadAi Premium! Your account has been upgraded and you now have unlimited access to all
+            features.</p>
+
         <div class="features">
             <h3>✨ Premium Features Unlocked:</h3>
             <ul>
@@ -155,18 +178,26 @@
                 <li>All future updates included</li>
             </ul>
         </div>
-        
+
         <div class="status processing" id="status">
             🔄 Activating your premium account...
         </div>
-        
+
         <div style="margin-top: 24px;">
             <button class="btn" id="openExtensionBtn" disabled>
                 Open ThreadAi Extension
             </button>
             <a href="https://twitter.com" class="btn btn-secondary">Continue Browsing</a>
         </div>
-        
+
+        <div id="debugInfo"
+            style="font-size: 12px; color: #a0aec0; margin-top: 20px; text-align: left; background: #f8f9fa; padding: 10px; border-radius: 4px;">
+            <strong>Debug Info:</strong><br>
+            <span id="planInfo">Plan: Loading...</span><br>
+            <span id="urlInfo">URL: Loading...</span><br>
+            <span id="referrerInfo">Referrer: Loading...</span>
+        </div>
+
         <p style="font-size: 14px; color: #a0aec0; margin-top: 20px;">
             Having issues? <a href="mailto:support@threadai.com" style="color: #667eea;">Contact Support</a>
         </p>
@@ -177,30 +208,71 @@
         function getPlanFromUrl() {
             const urlParams = new URLSearchParams(window.location.search);
             const customPlan = urlParams.get('custom_plan');
-            
+
             if (customPlan) {
-                console.log('✅ Plan detected from URL:', customPlan);
+                console.log('✅ Plan detected from URL parameter:', customPlan);
                 return customPlan;
             }
-            
+
+            // Check URL hash
+            const hash = window.location.hash.toLowerCase();
+            if (hash.includes('monthly')) return 'monthly';
+            if (hash.includes('quarterly')) return 'quarterly';
+            if (hash.includes('lifetime')) return 'lifetime';
+
             // Fallback detection from referrer
             const referrer = document.referrer.toLowerCase();
+            const currentUrl = window.location.href.toLowerCase();
+
             console.log('🔍 Checking referrer:', referrer);
-            
-            if (referrer.includes('11daa790-271f-4c8a-99a8-66a70257c8de')) return 'monthly';
-            if (referrer.includes('2e110581-a036-4eae-ae77-d13f722b86b4')) return 'quarterly';
-            if (referrer.includes('1a13d48e-9cf8-4f41-bfdb-2bd7a5e6100e')) return 'lifetime';
-            
-            // Default fallback
-            console.log('⚠️ Could not detect plan, using quarterly as default');
-            return 'quarterly';
+            console.log('🔍 Current URL:', currentUrl);
+
+            // Check for Lemon Squeezy product IDs in referrer
+            if (referrer.includes('11daa790-271f-4c8a-99a8-66a70257c8de')) {
+                console.log('✅ Detected monthly plan from referrer');
+                return 'monthly';
+            }
+            if (referrer.includes('2e110581-a036-4eae-ae77-d13f722b86b4')) {
+                console.log('✅ Detected quarterly plan from referrer');
+                return 'quarterly';
+            }
+            if (referrer.includes('1a13d48e-9cf8-4f41-bfdb-2bd7a5e6100e')) {
+                console.log('✅ Detected lifetime plan from referrer');
+                return 'lifetime';
+            }
+
+            // Check for price indicators in URL
+            if (currentUrl.includes('2.99') || referrer.includes('2.99')) return 'monthly';
+            if (currentUrl.includes('8.99') || referrer.includes('8.99')) return 'quarterly';
+            if (currentUrl.includes('28.99') || referrer.includes('28.99')) return 'lifetime';
+
+            // Ask user to specify if we can't detect
+            console.log('⚠️ Could not auto-detect plan');
+
+            // Show a simple prompt to user
+            const userChoice = prompt('Which plan did you purchase?\n\n1 = Monthly ($2.99)\n2 = Quarterly ($8.99)\n3 = Lifetime ($28.99)\n\nEnter 1, 2, or 3:');
+
+            switch (userChoice) {
+                case '1':
+                    console.log('✅ User selected monthly plan');
+                    return 'monthly';
+                case '2':
+                    console.log('✅ User selected quarterly plan');
+                    return 'quarterly';
+                case '3':
+                    console.log('✅ User selected lifetime plan');
+                    return 'lifetime';
+                default:
+                    console.log('⚠️ Invalid selection, defaulting to quarterly');
+                    return 'quarterly';
+            }
         }
 
         // Activate premium in extension
         async function activatePremium() {
             const plan = getPlanFromUrl();
             console.log('🎉 Activating premium plan:', plan);
-            
+
             try {
                 // Check if we have access to chrome extension APIs
                 if (typeof chrome !== 'undefined' && chrome.storage) {
@@ -212,23 +284,36 @@
                         paymentVerified: true,
                         activationSource: 'lemon_squeezy_success'
                     };
-                    
+
                     chrome.storage.sync.set({ threadai_trial_data: trialData }, () => {
                         console.log('✅ Premium activated successfully');
                         showSuccess();
                     });
                 } else {
-                    // External page - use localStorage bridge
+                    // External page - use multiple storage methods for persistence
+                    const persistentKey = btoa(Date.now() + '-' + Math.random()).slice(0, 16);
                     const activationData = {
                         isPaidUser: true,
                         userPlanId: plan,
                         purchaseDate: new Date().toISOString(),
                         paymentVerified: true,
                         activationSource: 'lemon_squeezy_success',
-                        timestamp: Date.now()
+                        timestamp: Date.now(),
+                        persistentKey: persistentKey
                     };
-                    
+
+                    // Store in multiple places for persistence
                     localStorage.setItem('threadai_premium_activation', JSON.stringify(activationData));
+                    sessionStorage.setItem('threadai_premium_activation', JSON.stringify(activationData));
+
+                    // Also store a persistent marker that survives reinstalls
+                    localStorage.setItem('threadai_premium_purchased', JSON.stringify({
+                        plan: plan,
+                        date: new Date().toISOString(),
+                        key: persistentKey,
+                        verified: true
+                    }));
+
                     console.log('✅ Activation data stored for extension pickup');
                     showSuccess();
                 }
@@ -242,13 +327,13 @@
         function showSuccess() {
             const status = document.getElementById('status');
             const btn = document.getElementById('openExtensionBtn');
-            
+
             status.className = 'status success';
             status.innerHTML = '✅ Premium activated successfully!';
-            
+
             btn.disabled = false;
             btn.textContent = 'Open ThreadAi Extension';
-            
+
             // Update page title
             document.title = 'Premium Activated - ThreadAi';
         }
@@ -257,10 +342,10 @@
         function showError() {
             const status = document.getElementById('status');
             const btn = document.getElementById('openExtensionBtn');
-            
+
             status.className = 'status error';
             status.innerHTML = '⚠️ Please open the ThreadAi extension to complete activation.';
-            
+
             btn.disabled = false;
             btn.textContent = 'Open ThreadAi Extension';
         }
@@ -277,7 +362,13 @@
             if (openBtn) {
                 openBtn.addEventListener('click', openExtension);
             }
-            
+
+            // Show debug info
+            const plan = getPlanFromUrl();
+            document.getElementById('planInfo').textContent = `Plan: ${plan}`;
+            document.getElementById('urlInfo').textContent = `URL: ${window.location.href}`;
+            document.getElementById('referrerInfo').textContent = `Referrer: ${document.referrer}`;
+
             // Start activation process
             setTimeout(() => {
                 activatePremium();
@@ -285,4 +376,5 @@
         });
     </script>
 </body>
+
 </html>
