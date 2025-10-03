@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
+    <title>Payment Successful - ThreadAi</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment Success - ThreadAi</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             margin: 0;
-            padding: 20px;
+            padding: 40px 20px;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -17,47 +17,113 @@
         }
         .container {
             background: white;
-            border-radius: 12px;
             padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             max-width: 500px;
+            animation: slideUp 0.5s ease-out;
         }
-        .success-icon { font-size: 64px; margin-bottom: 20px; }
-        h1 { color: #333; margin-bottom: 10px; }
-        p { color: #666; line-height: 1.6; margin-bottom: 20px; }
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .success-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            animation: bounce 1s ease-in-out;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+        h1 {
+            color: #2d3748;
+            margin-bottom: 16px;
+            font-size: 28px;
+        }
+        p {
+            color: #718096;
+            line-height: 1.6;
+            margin-bottom: 24px;
+            font-size: 16px;
+        }
+        .features {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        .features h3 {
+            color: #2d3748;
+            margin-bottom: 12px;
+            font-size: 18px;
+        }
+        .features ul {
+            margin: 0;
+            padding-left: 20px;
+            color: #4a5568;
+        }
+        .features li {
+            margin-bottom: 8px;
+        }
         .btn {
-            background: #007aff;
+            background: #667eea;
             color: white;
             border: none;
             padding: 12px 24px;
             border-radius: 8px;
-            font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
             text-decoration: none;
             display: inline-block;
-            margin: 10px;
+            transition: background 0.2s;
+            margin: 0 8px;
         }
-        .btn:hover { background: #0056cc; }
-        .btn-secondary { background: #6c757d; }
-        .btn-secondary:hover { background: #545b62; }
-        .status { 
-            margin: 20px 0; 
-            padding: 10px; 
-            border-radius: 6px; 
+        .btn:hover {
+            background: #5a67d8;
+        }
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 8px;
             font-weight: 500;
         }
-        .status.checking { background: #e3f2fd; color: #1976d2; }
-        .status.success { background: #e8f5e8; color: #2e7d32; }
-        .status.error { background: #ffebee; color: #c62828; }
-        .install-prompt {
-            display: none;
-            margin-top: 20px;
-            padding: 15px;
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: 8px;
-            color: #856404;
+        .status.success {
+            background: #f0fff4;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
+        }
+        .status.error {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 1px solid #feb2b2;
+        }
+        .status.checking {
+            background: #ebf8ff;
+            color: #2a4365;
+            border: 1px solid #90cdf4;
         }
     </style>
 </head>
@@ -65,177 +131,177 @@
     <div class="container">
         <div class="success-icon">🎉</div>
         <h1>Payment Successful!</h1>
-        <p>Thank you for upgrading to ThreadAi Premium!</p>
+        <p>Welcome to ThreadAi Premium! Your account has been upgraded and you now have unlimited access to all features.</p>
+        
+        <div class="features">
+            <h3>✨ Premium Features Unlocked:</h3>
+            <ul>
+                <li>Unlimited thread summarizations</li>
+                <li>Advanced AI reply generation</li>
+                <li>Custom prompt templates</li>
+                <li>Priority processing speed</li>
+                <li>All future updates included</li>
+            </ul>
+        </div>
         
         <div class="status checking" id="status">
-            🔄 Activating your premium features...
+            🔄 Activating your premium account...
         </div>
         
-        <button class="btn" onclick="activateExtension()" id="activateBtn">
-            Activate Premium Features
-        </button>
-        
-        <button class="btn btn-secondary" onclick="openExtension()" id="extensionBtn" style="display: none;">
-            Open ThreadAi Extension
-        </button>
-        
-        <button class="btn btn-secondary" onclick="checkExtension()" id="checkBtn" style="display: none;">
-            Check Extension Status
-        </button>
-        
-        <div class="install-prompt" id="installPrompt">
-            <p style="margin: 0;">
-                <strong>Extension Not Found!</strong><br>
-                Please install the ThreadAi extension first, then return to this page.
-            </p>
-            <a href="chrome://extensions/" class="btn" style="margin-top: 10px; display: inline-block;">
-                Open Extensions Page
-            </a>
+        <div style="margin-top: 24px;">
+            <button class="btn" onclick="openExtension()" id="openExtensionBtn" disabled>
+                Open ThreadAi Extension
+            </button>
+            <a href="https://twitter.com" class="btn btn-secondary">Continue Browsing</a>
         </div>
         
-        <p style="font-size: 12px; color: #999; margin-top: 30px;">
-            Having issues? <a href="mailto:support@threadai.com">Contact Support</a>
+        <p style="font-size: 14px; color: #a0aec0; margin-top: 20px;">
+            Having issues? <a href="mailto:support@threadai.com" style="color: #667eea;">Contact Support</a>
         </p>
     </div>
 
     <script>
-        // Extension IDs to try
-        const possibleExtensionIds = [
-            'ifnbemppljpgmpfilfkkkonjpeomhcfl', // Your extension ID
-            // Add your current unpacked extension ID here if different
-        ];
-
-        // Get URL parameters
-        const urlParams = new URLSearchParams(window.location.search);
+        let activationAttempts = 0;
+        const maxAttempts = 10;
         
-        // Generate fallback session data
-        function generateFallbackSessionId() {
-            const now = Date.now();
-            const random = Math.random().toString(36).substring(2, 15);
-            return btoa(`${now}-${random}-payment`).replace(/[^a-zA-Z0-9]/g, '').substring(0, 16);
-        }
-
-        // Get session data (with fallbacks since Lemon Squeezy parameters don't work)
-        const sessionId = generateFallbackSessionId();
-        const planId = 'monthly';
-        const timestamp = Date.now().toString();
-
-        console.log('🎉 Payment success page loaded');
-        console.log('📋 Generated session data:', { sessionId, planId, timestamp });
-
-        async function activateExtension() {
-            const statusDiv = document.getElementById('status');
-            const activateBtn = document.getElementById('activateBtn');
-            const extensionBtn = document.getElementById('extensionBtn');
-
-            try {
-                statusDiv.className = 'status checking';
-                statusDiv.innerHTML = '🔄 Connecting to ThreadAi extension...';
-                activateBtn.disabled = true;
-
-                console.log('🔌 Attempting to connect to extensions...');
-
-                // Check if Chrome extension APIs are available
-                if (typeof chrome === 'undefined' || !chrome.runtime) {
-                    throw new Error('Chrome extension APIs not available. Please make sure you are using Chrome browser.');
-                }
-
-                let extensionId = null;
-                let response = null;
-
-                // Try each possible extension ID
-                for (const id of possibleExtensionIds) {
-                    try {
-                        console.log('🔌 Trying extension ID:', id);
-                        response = await chrome.runtime.sendMessage(id, {
-                            action: 'PAYMENT_SUCCESS',
-                            payload: {
-                                sessionId: sessionId,
-                                planId: planId,
-                                timestamp: parseInt(timestamp),
-                                premium: true,
-                                source: 'web_success_page'
-                            }
-                        });
-                        
-                        if (response) {
-                            extensionId = id;
-                            console.log('✅ Connected to extension:', id);
-                            console.log('📨 Extension response:', response);
-                            break;
-                        }
-                    } catch (err) {
-                        console.log('❌ Failed to connect to:', id, err.message);
-                        continue;
+        // Try to activate premium in extension
+        function activatePremium() {
+            activationAttempts++;
+            
+            if (typeof chrome !== 'undefined' && chrome.runtime) {
+                // Extension context available
+                chrome.runtime.sendMessage('threadai-extension-id', {
+                    type: 'PAYMENT_SUCCESS',
+                    payload: {
+                        method: 'lemon_squeezy',
+                        timestamp: Date.now(),
+                        source: 'web_success_page',
+                        plan: getUrlParameter('plan') || 'premium',
+                        orderId: getUrlParameter('order_id') || getUrlParameter('checkout_id')
                     }
-                }
-                
-                if (!response) {
-                    throw new Error('Could not connect to any ThreadAi extension. Please make sure it is installed and enabled.');
-                }
-
-                if (response && response.success) {
-                    statusDiv.className = 'status success';
-                    statusDiv.innerHTML = '✅ Premium features activated successfully!';
-                    activateBtn.style.display = 'none';
-                    extensionBtn.style.display = 'inline-block';
-                } else {
-                    throw new Error(response?.error || 'Failed to activate premium');
-                }
-
-            } catch (error) {
-                console.error('Activation error:', error);
-                statusDiv.className = 'status error';
-
-                if (error.message.includes('extension not found') || error.message.includes('Could not establish connection')) {
-                    statusDiv.innerHTML = '⚠️ ThreadAi extension not found. Please check if it\'s installed and enabled.';
-                    document.getElementById('installPrompt').style.display = 'block';
-                    document.getElementById('checkBtn').style.display = 'inline-block';
-                } else {
-                    statusDiv.innerHTML = '⚠️ Please open your ThreadAi extension manually to complete activation.';
-                    extensionBtn.style.display = 'inline-block';
-                }
-
-                activateBtn.textContent = 'Try Again';
-                activateBtn.disabled = false;
+                }).then(() => {
+                    showSuccess();
+                }).catch(error => {
+                    console.warn('Extension communication failed:', error);
+                    if (activationAttempts < maxAttempts) {
+                        setTimeout(activatePremium, 2000);
+                    } else {
+                        showManualActivation();
+                    }
+                });
+            } else {
+                // No extension context, try alternative methods
+                tryAlternativeActivation();
             }
         }
-
-        async function checkExtension() {
-            const statusDiv = document.getElementById('status');
-            statusDiv.className = 'status checking';
-            statusDiv.innerHTML = '🔍 Checking extension status...';
+        
+        // Alternative activation methods
+        function tryAlternativeActivation() {
+            // Method 1: Try to communicate via window.postMessage
+            window.postMessage({
+                type: 'THREADAI_PAYMENT_SUCCESS',
+                payload: {
+                    method: 'lemon_squeezy',
+                    timestamp: Date.now(),
+                    source: 'web_success_page'
+                }
+            }, '*');
             
-            console.log('🔍 Checking extension availability...');
+            // Method 2: Set a flag in localStorage that extension can check
+            try {
+                localStorage.setItem('threadai_payment_success', JSON.stringify({
+                    timestamp: Date.now(),
+                    method: 'lemon_squeezy',
+                    activated: false
+                }));
+            } catch (e) {
+                console.warn('Could not set localStorage flag');
+            }
             
-            for (const id of possibleExtensionIds) {
+            // Method 3: Try to open extension URL
+            setTimeout(() => {
                 try {
-                    console.log('Testing extension ID:', id);
-                    const response = await chrome.runtime.sendMessage(id, {action: 'GET_TRIAL_STATUS'});
-                    console.log('✅ Extension found:', id, response);
-                    statusDiv.className = 'status success';
-                    statusDiv.innerHTML = `✅ Extension found! ID: ${id}`;
-                    return;
-                } catch (err) {
-                    console.log('❌ Extension not found:', id, err.message);
+                    // This will only work if user has the extension installed
+                    window.location.href = 'chrome-extension://threadai/public/popup/popup.html';
+                } catch (e) {
+                    showManualActivation();
                 }
+            }, 1000);
+        }
+        
+        // Get URL parameter
+        function getUrlParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+        
+        // Show success status
+        function showSuccess() {
+            const status = document.getElementById('status');
+            const btn = document.getElementById('openExtensionBtn');
+            
+            status.className = 'status success';
+            status.innerHTML = '✅ Premium activated successfully!';
+            
+            btn.disabled = false;
+            btn.textContent = 'Open ThreadAi Extension';
+        }
+        
+        // Show manual activation instructions
+        function showManualActivation() {
+            const status = document.getElementById('status');
+            const btn = document.getElementById('openExtensionBtn');
+            
+            status.className = 'status error';
+            status.innerHTML = '⚠️ Please open the ThreadAi extension manually to complete activation.';
+            
+            btn.disabled = false;
+            btn.textContent = 'Open Extension Manually';
+            btn.onclick = () => {
+                alert('Please click on the ThreadAi extension icon in your browser toolbar to complete the activation.');
+            };
+        }
+        
+        // Open extension function
+        function openExtension() {
+            // Try multiple methods to open the extension
+            
+            // Method 1: Try chrome-extension URL
+            try {
+                window.open('chrome-extension://threadai/public/popup/popup.html', '_blank');
+            } catch (e) {
+                console.warn('Could not open extension URL');
             }
             
-            statusDiv.className = 'status error';
-            statusDiv.innerHTML = '❌ No ThreadAi extension found. Please check if it\'s installed and enabled.';
+            // Method 2: Instruct user
+            alert('Please click on the ThreadAi extension icon in your browser toolbar to start using your premium features!');
         }
-
-        function openExtension() {
-            // Try to open extension popup
-            const extensionId = possibleExtensionIds[0];
-            window.open(`chrome-extension://${extensionId}/public/popup/popup.html`, '_blank');
-        }
-
-        // Auto-activate when page loads (payment was successful if we're here)
-        window.addEventListener('load', () => {
-            console.log('🚀 Payment success page loaded, auto-activating premium');
-            // Always try to activate since user reached success page after payment
-            setTimeout(activateExtension, 1500);
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Start activation process
+            activatePremium();
+            
+            // Also try activation every few seconds in case extension loads later
+            const activationInterval = setInterval(() => {
+                if (activationAttempts < maxAttempts) {
+                    activatePremium();
+                } else {
+                    clearInterval(activationInterval);
+                }
+            }, 3000);
+            
+            // Clear interval after 30 seconds
+            setTimeout(() => {
+                clearInterval(activationInterval);
+            }, 30000);
+        });
+        
+        // Listen for messages from extension
+        window.addEventListener('message', (event) => {
+            if (event.data.type === 'THREADAI_ACTIVATION_COMPLETE') {
+                showSuccess();
+            }
         });
     </script>
 </body>
