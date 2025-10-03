@@ -177,6 +177,21 @@
             🔄 Activating your premium account...
         </div>
 
+        <!-- Plan Selection for Testing -->
+        <div id="planSelector" style="margin: 20px 0; display: none;">
+            <p style="font-size: 14px; color: #4a5568; margin-bottom: 12px;">
+                If the wrong plan is detected, select your plan:
+            </p>
+            <div style="display: flex; gap: 8px; justify-content: center;">
+                <button class="btn btn-secondary" onclick="setPlan('monthly')"
+                    style="padding: 6px 12px; font-size: 12px;">Monthly</button>
+                <button class="btn btn-secondary" onclick="setPlan('quarterly')"
+                    style="padding: 6px 12px; font-size: 12px;">3-Month</button>
+                <button class="btn btn-secondary" onclick="setPlan('lifetime')"
+                    style="padding: 6px 12px; font-size: 12px;">Lifetime</button>
+            </div>
+        </div>
+
         <div style="margin-top: 24px;">
             <button class="btn" onclick="openExtension()" id="openExtensionBtn" disabled>
                 Open ThreadAi Extension
@@ -209,14 +224,17 @@
 
             // Method 1: Set a flag in localStorage that extension can check
             try {
+                const detectedPlan = detectPlan();
                 const paymentData = {
                     timestamp: Date.now(),
                     method: 'lemon_squeezy',
                     source: 'web_success_page',
-                    plan: getUrlParameter('plan') || 'premium',
+                    plan: detectedPlan,
                     orderId: getUrlParameter('order_id') || getUrlParameter('checkout_id'),
                     activated: false
                 };
+
+                console.log('📋 Payment data with detected plan:', paymentData);
 
                 localStorage.setItem('threadai_payment_success', JSON.stringify(paymentData));
                 console.log('✅ Payment success flag set in localStorage');
@@ -236,12 +254,37 @@
                     method: 'lemon_squeezy',
                     timestamp: Date.now(),
                     source: 'web_success_page',
-                    plan: getUrlParameter('plan') || 'premium',
+                    plan: detectPlan(),
                     orderId: getUrlParameter('order_id') || getUrlParameter('checkout_id')
                 }
             }, '*');
 
             console.log('📡 Payment success message posted to window');
+
+            // Method 3: Try to send message directly to extension (if possible)
+            try {
+                if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
+                    chrome.runtime.sendMessage({
+                        type: 'THREADAI_PAYMENT_SUCCESS',
+                        payload: {
+                            method: 'lemon_squeezy',
+                            timestamp: Date.now(),
+                            source: 'web_success_page',
+                            plan: detectPlan(),
+                            orderId: getUrlParameter('order_id') || getUrlParameter('checkout_id')
+                        }
+                    }).then(() => {
+                        console.log('✅ Direct message sent to extension');
+                        setTimeout(showSuccess, 500);
+                    }).catch(error => {
+                        console.warn('Could not send direct message to extension:', error);
+                    });
+                } else {
+                    console.log('ℹ️ Chrome runtime not available for direct messaging');
+                }
+            } catch (e) {
+                console.warn('Chrome runtime not available:', e);
+            }
         }
 
         // Get URL parameter
@@ -250,16 +293,79 @@
             return urlParams.get(name);
         }
 
+        // Try to detect plan from URL or other indicators
+        function detectPlan() {
+            // Method 1: Check URL parameters
+            const planParam = getUrlParameter('plan') || getUrlParameter('variant') || getUrlParameter('product');
+            if (planParam) {
+                console.log('📋 Plan detected from URL:', planParam);
+                return planParam;
+            }
+
+            // Method 2: Check for plan indicators in URL
+            const url = window.location.href.toLowerCase();
+            if (url.includes('monthly') || url.includes('month')) return 'monthly';
+            if (url.includes('quarterly') || url.includes('3-month') || url.includes('quarter')) return 'quarterly';
+            if (url.includes('lifetime') || url.includes('life')) return 'lifetime';
+
+            // Method 3: Check page content for plan information
+            const pageText = document.body.textContent.toLowerCase();
+            if (pageText.includes('monthly plan') || pageText.includes('$2.99')) return 'monthly';
+            if (pageText.includes('3-month') || pageText.includes('quarterly') || pageText.includes('$8.99')) return 'quarterly';
+            if (pageText.includes('lifetime') || pageText.includes('$28.99')) return 'lifetime';
+
+            console.log('⚠️ Could not detect specific plan, using default');
+            return 'premium'; // Default fallback
+        }
+
         // Show success status
         function showSuccess() {
             const status = document.getElementById('status');
             const btn = document.getElementById('openExtensionBtn');
+            const planSelector = document.getElementById('planSelector');
 
             status.className = 'status success';
             status.innerHTML = '✅ Premium activated successfully!';
 
             btn.disabled = false;
             btn.textContent = 'Open ThreadAi Extension';
+
+            // Show plan selector for manual correction if needed
+            planSelector.style.display = 'block';
+        }
+
+        // Set specific plan (for testing/correction)
+        function setPlan(planType) {
+            console.log('🔄 Setting plan to:', planType);
+
+            // Update localStorage flag
+            const currentFlag = localStorage.getItem('threadai_payment_success');
+            if (currentFlag) {
+                const data = JSON.parse(currentFlag);
+                data.plan = planType;
+                data.activated = false; // Reset to allow reactivation
+                localStorage.setItem('threadai_payment_success', JSON.stringify(data));
+                console.log('✅ Updated payment flag with plan:', planType);
+            }
+
+            // Send direct message with new plan
+            if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
+                chrome.runtime.sendMessage({
+                    type: 'THREADAI_PAYMENT_SUCCESS',
+                    payload: {
+                        method: 'lemon_squeezy',
+                        timestamp: Date.now(),
+                        source: 'web_success_page_manual',
+                        plan: planType,
+                        orderId: getUrlParameter('order_id') || getUrlParameter('checkout_id')
+                    }
+                }).then(() => {
+                    console.log('✅ Plan update message sent to extension');
+                    alert(`Plan updated to ${planType}! Open the extension to see the change.`);
+                }).catch(error => {
+                    console.warn('Could not send plan update message:', error);
+                });
+            }
         }
 
         // Show manual activation instructions
