@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +10,7 @@
             padding: 0;
             box-sizing: border-box;
         }
-
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -19,163 +18,127 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            color: #333;
         }
-
+        
         .container {
             background: white;
             padding: 40px;
             border-radius: 16px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             text-align: center;
             max-width: 500px;
-            width: 100%;
-            animation: slideUp 0.5s ease-out;
+            margin: 20px;
         }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
+        
         .success-icon {
             font-size: 64px;
             margin-bottom: 20px;
-            animation: bounce 1s ease-in-out;
         }
-
-        @keyframes bounce {
-
-            0%,
-            20%,
-            50%,
-            80%,
-            100% {
-                transform: translateY(0);
-            }
-
-            40% {
-                transform: translateY(-10px);
-            }
-
-            60% {
-                transform: translateY(-5px);
-            }
-        }
-
+        
         h1 {
             color: #2d3748;
             margin-bottom: 16px;
             font-size: 28px;
         }
-
+        
         p {
-            color: #718096;
+            color: #4a5568;
             line-height: 1.6;
-            margin-bottom: 24px;
-            font-size: 16px;
+            margin-bottom: 20px;
         }
-
+        
         .features {
             background: #f7fafc;
             padding: 20px;
-            border-radius: 8px;
+            border-radius: 12px;
             margin: 20px 0;
             text-align: left;
         }
-
+        
         .features h3 {
             color: #2d3748;
             margin-bottom: 12px;
-            font-size: 18px;
         }
-
+        
         .features ul {
-            margin: 0;
-            padding-left: 20px;
-            color: #4a5568;
+            list-style: none;
+            padding: 0;
         }
-
+        
         .features li {
-            margin-bottom: 8px;
-        }
-
-        .btn {
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            transition: background 0.2s;
-            margin: 0 8px;
-        }
-
-        .btn:hover {
-            background: #5a67d8;
-        }
-
-        .btn-secondary {
-            background: #e2e8f0;
+            padding: 8px 0;
             color: #4a5568;
         }
-
-        .btn-secondary:hover {
-            background: #cbd5e0;
+        
+        .features li:before {
+            content: "✅ ";
+            margin-right: 8px;
         }
-
+        
         .status {
-            margin-top: 20px;
-            padding: 12px;
+            padding: 16px;
             border-radius: 8px;
+            margin: 20px 0;
             font-weight: 500;
         }
-
-        .status.success {
-            background: #f0fff4;
-            color: #22543d;
-            border: 1px solid #9ae6b4;
-        }
-
+        
         .status.processing {
-            background: #ebf8ff;
-            color: #2a4365;
-            border: 1px solid #90cdf4;
+            background: #bee3f8;
+            color: #2b6cb0;
         }
-
+        
+        .status.success {
+            background: #c6f6d5;
+            color: #2f855a;
+        }
+        
         .status.error {
             background: #fed7d7;
             color: #c53030;
-            border: 1px solid #feb2b2;
+        }
+        
+        .extension-link {
+            display: inline-block;
+            background: #4299e1;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: background 0.2s;
+        }
+        
+        .extension-link:hover {
+            background: #3182ce;
+        }
+        
+        .debug-info {
+            background: #f7fafc;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-family: monospace;
+            font-size: 12px;
+            text-align: left;
+            color: #4a5568;
         }
     </style>
 </head>
-
 <body>
     <div class="container">
         <div class="success-icon">🎉</div>
         <h1>Payment Successful!</h1>
-        <p>Welcome to ThreadAi Premium! Your account has been upgraded and you now have unlimited access to all
-            features.</p>
+        <p>Welcome to ThreadAi Premium! Your account is being activated and you now have unlimited access to all features.</p>
 
         <div class="features">
             <h3>✨ Premium Features Unlocked:</h3>
             <ul>
                 <li>Unlimited thread summarizations</li>
-                <li>Advanced AI reply generation</li>
-                <li>Custom prompt templates</li>
-                <li>Priority processing speed</li>
-                <li>All future updates included</li>
+                <li>AI-powered reply generation</li>
+                <li>Multiple tone options</li>
+                <li>Priority support</li>
             </ul>
         </div>
 
@@ -183,359 +146,214 @@
             🔄 Activating your premium account...
         </div>
 
-        <div style="margin-top: 24px;">
-            <button class="btn" id="openExtensionBtn" disabled>
-                Open ThreadAi Extension
-            </button>
-            <a href="https://twitter.com" class="btn btn-secondary">Continue Browsing</a>
-        </div>
+        <a href="#" class="extension-link" id="extensionLink" style="display: none;">
+            Open ThreadAi Extension
+        </a>
 
-        <div id="debugInfo"
-            style="font-size: 12px; color: #a0aec0; margin-top: 20px; text-align: left; background: #f8f9fa; padding: 10px; border-radius: 4px;">
-            <strong>Debug Info:</strong><br>
-            <span id="planInfo">Plan: Loading...</span><br>
-            <span id="urlInfo">URL: Loading...</span><br>
-            <span id="referrerInfo">Referrer: Loading...</span>
+        <div class="debug-info" id="debugInfo" style="display: none;">
+            <strong>Debug Information:</strong><br>
+            <div id="debugContent"></div>
         </div>
-
-        <p style="font-size: 14px; color: #a0aec0; margin-top: 20px;">
-            Having issues? <a href="mailto:support@threadai.com" style="color: #667eea;">Contact Support</a>
-        </p>
     </div>
 
     <script>
-        // Get plan from URL parameters
-        function getPlanFromUrl() {
-            // 0. Check for user-confirmed plan first
-            const confirmedPlan = sessionStorage.getItem('confirmed_plan');
-            if (confirmedPlan) {
-                console.log('✅ Plan confirmed by user:', confirmedPlan);
-                sessionStorage.removeItem('confirmed_plan'); // Clean up
-                return confirmedPlan;
+        console.log('🎉 ThreadAi Success Page Loaded');
+        
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const debugContent = document.getElementById('debugContent');
+        const statusDiv = document.getElementById('status');
+        
+        // Debug: Show all URL parameters
+        const allParams = {};
+        for (const [key, value] of urlParams.entries()) {
+            allParams[key] = value;
+        }
+        
+        console.log('🔍 URL Parameters:', allParams);
+        debugContent.innerHTML = `
+            URL: ${window.location.href}<br>
+            Parameters: ${JSON.stringify(allParams, null, 2)}<br>
+            Timestamp: ${new Date().toISOString()}
+        `;
+        
+        // Show debug info in development
+        if (window.location.hostname === 'localhost' || urlParams.get('debug') === 'true') {
+            document.getElementById('debugInfo').style.display = 'block';
+        }
+        
+        // Extract email from various possible parameter names
+        function getEmailFromUrl() {
+            // Try different parameter names that Lemon Squeezy might use
+            const possibleEmailParams = [
+                'email',
+                'user_email', 
+                'customer_email',
+                'checkout_email',
+                'billing_email'
+            ];
+            
+            for (const param of possibleEmailParams) {
+                const email = urlParams.get(param);
+                if (email && email.includes('@')) {
+                    console.log(`✅ Email found in parameter '${param}':`, email);
+                    return email;
+                }
             }
-
-            const urlParams = new URLSearchParams(window.location.search);
-            const customPlan = urlParams.get('custom_plan');
-
-            if (customPlan) {
-                console.log('✅ Plan detected from URL parameter:', customPlan);
-                return customPlan;
-            }
-
-            // Check for custom checkout data in URL
-            const checkoutPlan = urlParams.get('checkout[custom][plan]') || urlParams.get('plan');
-            if (checkoutPlan) {
-                console.log('✅ Plan detected from checkout data:', checkoutPlan);
-                return checkoutPlan;
-            }
-
-            // Check URL hash
-            const hash = window.location.hash.toLowerCase();
-            if (hash.includes('monthly')) return 'monthly';
-            if (hash.includes('quarterly')) return 'quarterly';
-            if (hash.includes('lifetime')) return 'lifetime';
-
-            // Fallback detection from referrer
-            const referrer = document.referrer.toLowerCase();
-            const currentUrl = window.location.href.toLowerCase();
-
-            console.log('🔍 Checking referrer:', referrer);
-            console.log('🔍 Current URL:', currentUrl);
-
-            // Enhanced referrer detection - check browser history and session
-            try {
-                // Check if we can access browser history or session data
-                const historyLength = window.history.length;
-                console.log('🔍 Browser history length:', historyLength);
-
-                // Check session storage for any plan indicators
-                for (let i = 0; i < sessionStorage.length; i++) {
-                    const key = sessionStorage.key(i);
-                    const value = sessionStorage.getItem(key);
-                    if (key && (key.includes('plan') || key.includes('checkout') || key.includes('lemon'))) {
-                        console.log('🔍 Found session data:', key, value);
+            
+            // Try to extract from checkout data
+            const checkoutData = urlParams.get('checkout');
+            if (checkoutData) {
+                try {
+                    const parsed = JSON.parse(decodeURIComponent(checkoutData));
+                    if (parsed.email) {
+                        console.log('✅ Email found in checkout data:', parsed.email);
+                        return parsed.email;
                     }
+                } catch (e) {
+                    console.warn('Could not parse checkout data:', e);
                 }
-            } catch (e) {
-                console.log('🔍 Cannot access browser history/session');
             }
-
-            // Check for Lemon Squeezy product IDs in referrer and current URL
-            const fullUrl = window.location.href;
-            const allUrls = [referrer, currentUrl, fullUrl, document.URL].join(' ').toLowerCase();
-
-            if (allUrls.includes('11daa790-271f-4c8a-99a8-66a70257c8de') || allUrls.includes('monthly')) {
-                console.log('✅ Detected monthly plan from URL analysis');
-                return 'monthly';
-            }
-            if (allUrls.includes('2e110581-a036-4eae-ae77-d13f722b86b4') || allUrls.includes('quarterly')) {
-                console.log('✅ Detected quarterly plan from URL analysis');
-                return 'quarterly';
-            }
-            if (allUrls.includes('1a13d48e-9cf8-4f41-bfdb-2bd7a5e6100e') || allUrls.includes('lifetime')) {
-                console.log('✅ Detected lifetime plan from URL analysis');
-                return 'lifetime';
-            }
-
-            // Check for price indicators in URL
-            if (currentUrl.includes('2.99') || referrer.includes('2.99')) return 'monthly';
-            if (currentUrl.includes('8.99') || referrer.includes('8.99')) return 'quarterly';
-            if (currentUrl.includes('28.99') || referrer.includes('28.99')) return 'lifetime';
-
-            // Show a user-friendly plan confirmation
-            console.log('⚠️ Could not auto-detect plan, showing plan selection UI');
-            showPlanConfirmation();
-            return null; // Will be set by user selection
+            
+            return null;
         }
-
-        // Show user-friendly plan confirmation
-        function showPlanConfirmation() {
-            return new Promise((resolve) => {
-                // Update the page to show plan selection
-                const container = document.querySelector('.container');
-                container.innerHTML = `
-                    <div class="success-icon">🎉</div>
-                    <h1>Payment Successful!</h1>
-                    <p>Please confirm which plan you purchased to activate the correct premium tier:</p>
-                    
-                    <div style="display: flex; flex-direction: column; gap: 12px; margin: 30px 0;">
-                        <button onclick="confirmPlan('monthly')" style="
-                            background: #4299e1;
-                            color: white;
-                            border: none;
-                            padding: 15px 25px;
-                            border-radius: 8px;
-                            cursor: pointer;
-                            font-weight: 600;
-                            font-size: 16px;
-                        ">Monthly Plan - $2.99/month</button>
-                        
-                        <button onclick="confirmPlan('quarterly')" style="
-                            background: #10b981;
-                            color: white;
-                            border: none;
-                            padding: 15px 25px;
-                            border-radius: 8px;
-                            cursor: pointer;
-                            font-weight: 600;
-                            font-size: 16px;
-                        ">Quarterly Plan - $8.99 (3 months)</button>
-                        
-                        <button onclick="confirmPlan('lifetime')" style="
-                            background: #805ad5;
-                            color: white;
-                            border: none;
-                            padding: 15px 25px;
-                            border-radius: 8px;
-                            cursor: pointer;
-                            font-weight: 600;
-                            font-size: 16px;
-                        ">Lifetime Plan - $28.99 (one-time)</button>
-                    </div>
-                    
-                    <p style="font-size: 14px; color: #718096;">
-                        Click the plan you just purchased to activate your premium features.
-                    </p>
-                `;
-
-                // Add global function for plan confirmation
-                window.confirmPlan = (plan) => {
-                    console.log('✅ User confirmed plan:', plan);
-
-                    // Store the confirmed plan
-                    sessionStorage.setItem('confirmed_plan', plan);
-
-                    // Update UI to show activation
-                    document.querySelector('.container').innerHTML = `
-                        <div class="success-icon">🎉</div>
-                        <h1>Payment Successful!</h1>
-                        <p>Activating your ${plan} premium plan...</p>
-                        <div class="status processing" id="status">
-                            🔄 Activating your premium account...
-                        </div>
-                        <div style="margin-top: 24px;">
-                            <button class="btn" id="openExtensionBtn" disabled>
-                                Open ThreadAi Extension
-                            </button>
-                        </div>
-                    `;
-
-                    // Activate premium directly
-                    activatePremiumWithPlan(plan);
-
-                    resolve(plan);
-                };
-            });
-        }
-
-        // Activate premium with specific plan
-        async function activatePremiumWithPlan(plan) {
-            console.log('🎉 Activating premium plan:', plan);
-
-            try {
-                // Check if we have access to chrome extension APIs
-                if (typeof chrome !== 'undefined' && chrome.storage) {
-                    // Direct activation in extension context
-                    const trialData = {
-                        isPaidUser: true,
-                        userPlanId: plan,
-                        purchaseDate: new Date().toISOString(),
-                        paymentVerified: true,
-                        activationSource: 'lemon_squeezy_success'
-                    };
-
-                    chrome.storage.sync.set({ threadai_trial_data: trialData }, () => {
-                        console.log('✅ Premium activated successfully');
-                        showSuccess();
-                    });
-                } else {
-                    // External page - use multiple storage methods for persistence
-                    const persistentKey = btoa(Date.now() + '-' + Math.random()).slice(0, 16);
-                    const activationData = {
-                        isPaidUser: true,
-                        userPlanId: plan,
-                        purchaseDate: new Date().toISOString(),
-                        paymentVerified: true,
-                        activationSource: 'lemon_squeezy_success',
-                        timestamp: Date.now(),
-                        persistentKey: persistentKey
-                    };
-
-                    // Store in multiple places for persistence
-                    localStorage.setItem('threadai_premium_activation', JSON.stringify(activationData));
-                    sessionStorage.setItem('threadai_premium_activation', JSON.stringify(activationData));
-
-                    // Also store a persistent marker that survives reinstalls
-                    localStorage.setItem('threadai_premium_purchased', JSON.stringify({
-                        plan: plan,
-                        date: new Date().toISOString(),
-                        key: persistentKey,
-                        verified: true
-                    }));
-
-                    console.log('✅ Activation data stored for extension pickup');
-                    showSuccess();
+        
+        // Extract plan from URL
+        function getPlanFromUrl() {
+            // Try different parameter names
+            const possiblePlanParams = [
+                'plan',
+                'variant',
+                'product',
+                'subscription_plan'
+            ];
+            
+            for (const param of possiblePlanParams) {
+                const plan = urlParams.get(param);
+                if (plan) {
+                    console.log(`✅ Plan found in parameter '${param}':`, plan);
+                    return plan;
                 }
-            } catch (error) {
-                console.error('❌ Activation error:', error);
-                showError();
             }
+            
+            // Try to extract from checkout data
+            const checkoutData = urlParams.get('checkout');
+            if (checkoutData) {
+                try {
+                    const parsed = JSON.parse(decodeURIComponent(checkoutData));
+                    if (parsed.plan) {
+                        console.log('✅ Plan found in checkout data:', parsed.plan);
+                        return parsed.plan;
+                    }
+                } catch (e) {
+                    console.warn('Could not parse checkout data:', e);
+                }
+            }
+            
+            // Fallback: try to detect from referrer or current URL
+            const fullUrl = window.location.href.toLowerCase();
+            if (fullUrl.includes('monthly') || fullUrl.includes('11daa790')) return 'monthly';
+            if (fullUrl.includes('quarterly') || fullUrl.includes('2e110581')) return 'quarterly';
+            if (fullUrl.includes('lifetime') || fullUrl.includes('1a13d48e')) return 'lifetime';
+            
+            return 'quarterly'; // Default fallback
         }
-
-        // Activate premium in extension
+        
+        // Main activation function
         async function activatePremium() {
+            const email = getEmailFromUrl();
             const plan = getPlanFromUrl();
-
-            // If plan detection failed, don't proceed with activation
-            if (!plan) {
-                console.log('⏳ Waiting for user to select plan...');
+            
+            console.log('🎯 Activation Details:', { email, plan });
+            
+            if (!email) {
+                console.warn('⚠️ No email found in URL parameters');
+                statusDiv.className = 'status error';
+                statusDiv.innerHTML = '❌ Could not detect email from payment. Please contact support.';
                 return;
             }
-
-            console.log('🎉 Activating premium plan:', plan);
-
+            
             try {
-                // Check if we have access to chrome extension APIs
+                // Check if we're in extension context
                 if (typeof chrome !== 'undefined' && chrome.storage) {
-                    // Direct activation in extension context
-                    const trialData = {
-                        isPaidUser: true,
-                        userPlanId: plan,
-                        purchaseDate: new Date().toISOString(),
-                        paymentVerified: true,
-                        activationSource: 'lemon_squeezy_success'
-                    };
-
-                    chrome.storage.sync.set({ threadai_trial_data: trialData }, () => {
-                        console.log('✅ Premium activated successfully');
-                        showSuccess();
+                    console.log('🔧 Extension context detected');
+                    
+                    // Save email and plan to extension storage
+                    await chrome.storage.sync.set({
+                        userEmail: email,
+                        premiumPlan: plan,
+                        premiumActivated: true,
+                        activationDate: new Date().toISOString()
                     });
-                } else {
-                    // External page - use multiple storage methods for persistence
-                    const persistentKey = btoa(Date.now() + '-' + Math.random()).slice(0, 16);
-                    const activationData = {
-                        isPaidUser: true,
-                        userPlanId: plan,
-                        purchaseDate: new Date().toISOString(),
-                        paymentVerified: true,
-                        activationSource: 'lemon_squeezy_success',
-                        timestamp: Date.now(),
-                        persistentKey: persistentKey
+                    
+                    console.log('✅ Premium data saved to extension storage');
+                    
+                    statusDiv.className = 'status success';
+                    statusDiv.innerHTML = '✅ Premium activated successfully!';
+                    
+                    // Show extension link
+                    const extensionLink = document.getElementById('extensionLink');
+                    extensionLink.style.display = 'inline-block';
+                    extensionLink.onclick = () => {
+                        // Try to open extension popup
+                        if (chrome.action) {
+                            chrome.action.openPopup();
+                        } else {
+                            // Fallback: show instructions
+                            alert('Click the ThreadAi extension icon in your browser toolbar to start using premium features!');
+                        }
                     };
-
-                    // Store in multiple places for persistence
-                    localStorage.setItem('threadai_premium_activation', JSON.stringify(activationData));
-                    sessionStorage.setItem('threadai_premium_activation', JSON.stringify(activationData));
-
-                    // Also store a persistent marker that survives reinstalls
-                    localStorage.setItem('threadai_premium_purchased', JSON.stringify({
+                    
+                } else {
+                    console.log('🌐 Web context - storing in localStorage');
+                    
+                    // Store in localStorage for extension to pick up later
+                    const activationData = {
+                        email: email,
                         plan: plan,
-                        date: new Date().toISOString(),
-                        key: persistentKey,
-                        verified: true
-                    }));
-
-                    console.log('✅ Activation data stored for extension pickup');
-                    showSuccess();
+                        activated: true,
+                        timestamp: Date.now(),
+                        source: 'lemon_squeezy_success'
+                    };
+                    
+                    localStorage.setItem('threadai_premium_activation', JSON.stringify(activationData));
+                    console.log('✅ Activation data stored in localStorage');
+                    
+                    statusDiv.className = 'status success';
+                    statusDiv.innerHTML = '✅ Premium activated! Open the ThreadAi extension to start using premium features.';
+                    
+                    // Show extension link
+                    const extensionLink = document.getElementById('extensionLink');
+                    extensionLink.style.display = 'inline-block';
+                    extensionLink.onclick = () => {
+                        alert('Click the ThreadAi extension icon in your browser toolbar to start using premium features!');
+                    };
                 }
+                
             } catch (error) {
-                console.error('❌ Activation error:', error);
-                showError();
+                console.error('💥 Activation failed:', error);
+                statusDiv.className = 'status error';
+                statusDiv.innerHTML = `❌ Activation failed: ${error.message}`;
             }
         }
-
-        // Show success status
-        function showSuccess() {
-            const status = document.getElementById('status');
-            const btn = document.getElementById('openExtensionBtn');
-
-            status.className = 'status success';
-            status.innerHTML = '✅ Premium activated successfully!';
-
-            btn.disabled = false;
-            btn.textContent = 'Open ThreadAi Extension';
-
-            // Update page title
-            document.title = 'Premium Activated - ThreadAi';
-        }
-
-        // Show error status
-        function showError() {
-            const status = document.getElementById('status');
-            const btn = document.getElementById('openExtensionBtn');
-
-            status.className = 'status error';
-            status.innerHTML = '⚠️ Please open the ThreadAi extension to complete activation.';
-
-            btn.disabled = false;
-            btn.textContent = 'Open ThreadAi Extension';
-        }
-
-        // Open extension instructions
-        function openExtension() {
-            alert('Please click on the ThreadAi extension icon in your browser toolbar to start using your premium features!');
-        }
-
-        // Initialize page
-        document.addEventListener('DOMContentLoaded', () => {
-            // Add event listener for open extension button (avoiding CSP violations)
-            const openBtn = document.getElementById('openExtensionBtn');
-            if (openBtn) {
-                openBtn.addEventListener('click', openExtension);
+        
+        // Start activation process
+        setTimeout(activatePremium, 1000);
+        
+        // Also try to notify extension if possible
+        setTimeout(() => {
+            try {
+                if (typeof chrome !== 'undefined' && chrome.runtime) {
+                    chrome.runtime.sendMessage({
+                        type: 'PREMIUM_ACTIVATED',
+                        email: getEmailFromUrl(),
+                        plan: getPlanFromUrl()
+                    });
+                }
+            } catch (e) {
+                console.log('Could not send message to extension:', e);
             }
-
-            // Show debug info
-            const plan = getPlanFromUrl();
-            document.getElementById('planInfo').textContent = `Plan: ${plan}`;
-            document.getElementById('urlInfo').textContent = `URL: ${window.location.href}`;
-            document.getElementById('referrerInfo').textContent = `Referrer: ${document.referrer}`;
-
-            // Start activation process
-            setTimeout(() => {
-                activatePremium();
-            }, 1000);
-        });
+        }, 2000);
     </script>
 </body>
-
 </html>
