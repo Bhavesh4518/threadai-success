@@ -177,20 +177,7 @@
             🔄 Activating your premium account...
         </div>
 
-        <!-- Plan Selection for Testing -->
-        <div id="planSelector" style="margin: 20px 0; display: none;">
-            <p style="font-size: 14px; color: #4a5568; margin-bottom: 12px;">
-                If the wrong plan is detected, select your plan:
-            </p>
-            <div style="display: flex; gap: 8px; justify-content: center;">
-                <button class="btn btn-secondary" onclick="setPlan('monthly')"
-                    style="padding: 6px 12px; font-size: 12px;">Monthly</button>
-                <button class="btn btn-secondary" onclick="setPlan('quarterly')"
-                    style="padding: 6px 12px; font-size: 12px;">3-Month</button>
-                <button class="btn btn-secondary" onclick="setPlan('lifetime')"
-                    style="padding: 6px 12px; font-size: 12px;">Lifetime</button>
-            </div>
-        </div>
+
 
         <div style="margin-top: 24px;">
             <button class="btn" onclick="openExtension()" id="openExtensionBtn" disabled>
@@ -295,27 +282,42 @@
 
         // Try to detect plan from URL or other indicators
         function detectPlan() {
-            // Method 1: Check URL parameters
-            const planParam = getUrlParameter('plan') || getUrlParameter('variant') || getUrlParameter('product');
-            if (planParam) {
-                console.log('📋 Plan detected from URL:', planParam);
-                return planParam;
+            console.log('🔍 Detecting plan from URL:', window.location.href);
+            
+            // Method 1: Check URL parameters (Lemon Squeezy adds these after purchase)
+            const urlParams = new URLSearchParams(window.location.search);
+            const possiblePlanParams = ['plan', 'variant', 'variant_name', 'product', 'product_name'];
+            
+            for (const param of possiblePlanParams) {
+                const value = urlParams.get(param);
+                if (value) {
+                    console.log(`📋 Found ${param} parameter:`, value);
+                    const normalizedValue = value.toLowerCase();
+                    
+                    // Map various possible values to our plan types
+                    if (normalizedValue.includes('month') && !normalizedValue.includes('3')) return 'monthly';
+                    if (normalizedValue.includes('quarter') || normalizedValue.includes('3')) return 'quarterly';
+                    if (normalizedValue.includes('life') || normalizedValue.includes('forever')) return 'lifetime';
+                }
             }
-
-            // Method 2: Check for plan indicators in URL
-            const url = window.location.href.toLowerCase();
-            if (url.includes('monthly') || url.includes('month')) return 'monthly';
-            if (url.includes('quarterly') || url.includes('3-month') || url.includes('quarter')) return 'quarterly';
-            if (url.includes('lifetime') || url.includes('life')) return 'lifetime';
-
-            // Method 3: Check page content for plan information
-            const pageText = document.body.textContent.toLowerCase();
-            if (pageText.includes('monthly plan') || pageText.includes('$2.99')) return 'monthly';
-            if (pageText.includes('3-month') || pageText.includes('quarterly') || pageText.includes('$8.99')) return 'quarterly';
-            if (pageText.includes('lifetime') || pageText.includes('$28.99')) return 'lifetime';
-
-            console.log('⚠️ Could not detect specific plan, using default');
-            return 'premium'; // Default fallback
+            
+            // Method 2: Check URL path and hash
+            const fullUrl = window.location.href.toLowerCase();
+            if (fullUrl.includes('monthly') && !fullUrl.includes('3')) return 'monthly';
+            if (fullUrl.includes('quarterly') || fullUrl.includes('3-month') || fullUrl.includes('quarter')) return 'quarterly';
+            if (fullUrl.includes('lifetime') || fullUrl.includes('life')) return 'lifetime';
+            
+            // Method 3: Check for price indicators in URL
+            if (fullUrl.includes('2.99') || fullUrl.includes('299')) return 'monthly';
+            if (fullUrl.includes('8.99') || fullUrl.includes('899')) return 'quarterly';
+            if (fullUrl.includes('28.99') || fullUrl.includes('2899')) return 'lifetime';
+            
+            // Method 4: Log all URL parameters for debugging
+            console.log('🔧 All URL parameters:', Object.fromEntries(urlParams.entries()));
+            console.log('⚠️ Could not detect specific plan from URL, using fallback');
+            
+            // Since detection failed, return 'premium' and let user know
+            return 'premium';
         }
 
         // Show success status
@@ -330,43 +332,10 @@
             btn.disabled = false;
             btn.textContent = 'Open ThreadAi Extension';
 
-            // Show plan selector for manual correction if needed
-            planSelector.style.display = 'block';
+            // Plan selector removed for production
         }
 
-        // Set specific plan (for testing/correction)
-        function setPlan(planType) {
-            console.log('🔄 Setting plan to:', planType);
 
-            // Update localStorage flag
-            const currentFlag = localStorage.getItem('threadai_payment_success');
-            if (currentFlag) {
-                const data = JSON.parse(currentFlag);
-                data.plan = planType;
-                data.activated = false; // Reset to allow reactivation
-                localStorage.setItem('threadai_payment_success', JSON.stringify(data));
-                console.log('✅ Updated payment flag with plan:', planType);
-            }
-
-            // Send direct message with new plan
-            if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
-                chrome.runtime.sendMessage({
-                    type: 'THREADAI_PAYMENT_SUCCESS',
-                    payload: {
-                        method: 'lemon_squeezy',
-                        timestamp: Date.now(),
-                        source: 'web_success_page_manual',
-                        plan: planType,
-                        orderId: getUrlParameter('order_id') || getUrlParameter('checkout_id')
-                    }
-                }).then(() => {
-                    console.log('✅ Plan update message sent to extension');
-                    alert(`Plan updated to ${planType}! Open the extension to see the change.`);
-                }).catch(error => {
-                    console.warn('Could not send plan update message:', error);
-                });
-            }
-        }
 
         // Show manual activation instructions
         function showManualActivation() {
