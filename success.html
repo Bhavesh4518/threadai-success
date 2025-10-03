@@ -1,42 +1,40 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-    <title>Payment Successful - ThreadAi</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Successful - ThreadAi</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            margin: 0;
-            padding: 40px 20px;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 20px;
         }
 
         .container {
             background: white;
             padding: 40px;
             border-radius: 16px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             text-align: center;
             max-width: 500px;
+            width: 100%;
             animation: slideUp 0.5s ease-out;
         }
 
         @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .success-icon {
@@ -46,22 +44,9 @@
         }
 
         @keyframes bounce {
-
-            0%,
-            20%,
-            50%,
-            80%,
-            100% {
-                transform: translateY(0);
-            }
-
-            40% {
-                transform: translateY(-10px);
-            }
-
-            60% {
-                transform: translateY(-5px);
-            }
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
         }
 
         h1 {
@@ -146,16 +131,20 @@
             color: #2a4365;
             border: 1px solid #90cdf4;
         }
+
+        .status.error {
+            background: #fed7d7;
+            color: #c53030;
+            border: 1px solid #feb2b2;
+        }
     </style>
 </head>
-
 <body>
     <div class="container">
         <div class="success-icon">🎉</div>
         <h1>Payment Successful!</h1>
-        <p>Welcome to ThreadAi Premium! Your account has been upgraded and you now have unlimited access to all
-            features.</p>
-
+        <p>Welcome to ThreadAi Premium! Your account has been upgraded and you now have unlimited access to all features.</p>
+        
         <div class="features">
             <h3>✨ Premium Features Unlocked:</h3>
             <ul>
@@ -166,68 +155,44 @@
                 <li>All future updates included</li>
             </ul>
         </div>
-
+        
         <div class="status processing" id="status">
             🔄 Activating your premium account...
         </div>
-
+        
         <div style="margin-top: 24px;">
             <button class="btn" id="openExtensionBtn" disabled>
                 Open ThreadAi Extension
             </button>
             <a href="https://twitter.com" class="btn btn-secondary">Continue Browsing</a>
         </div>
-
+        
         <p style="font-size: 14px; color: #a0aec0; margin-top: 20px;">
             Having issues? <a href="mailto:support@threadai.com" style="color: #667eea;">Contact Support</a>
         </p>
     </div>
 
     <script>
-        // Get plan from URL
+        // Get plan from URL parameters
         function getPlanFromUrl() {
             const urlParams = new URLSearchParams(window.location.search);
             const customPlan = urlParams.get('custom_plan');
-
+            
             if (customPlan) {
-                console.log('✅ Plan detected from custom_plan parameter:', customPlan);
+                console.log('✅ Plan detected from URL:', customPlan);
                 return customPlan;
             }
-
-            // Check URL hash for plan info
-            const hash = window.location.hash.toLowerCase();
-            if (hash.includes('monthly')) return 'monthly';
-            if (hash.includes('quarterly')) return 'quarterly';
-            if (hash.includes('lifetime')) return 'lifetime';
-
-            // Fallback: detect from referrer or URL patterns
-            const url = window.location.href.toLowerCase();
+            
+            // Fallback detection from referrer
             const referrer = document.referrer.toLowerCase();
-
             console.log('🔍 Checking referrer:', referrer);
-            console.log('🔍 Current URL:', url);
-
-            // Check for Lemon Squeezy checkout URLs with full IDs
-            if (referrer.includes('11daa790-271f-4c8a-99a8-66a70257c8de') || url.includes('monthly')) {
-                console.log('✅ Detected monthly plan');
-                return 'monthly';
-            }
-            if (referrer.includes('2e110581-a036-4eae-ae77-d13f722b86b4') || url.includes('quarterly')) {
-                console.log('✅ Detected quarterly plan');
-                return 'quarterly';
-            }
-            if (referrer.includes('1a13d48e-9cf8-4f41-bfdb-2bd7a5e6100e') || url.includes('lifetime')) {
-                console.log('✅ Detected lifetime plan');
-                return 'lifetime';
-            }
-
-            // Check for price indicators
-            if (url.includes('2.99') || referrer.includes('2.99')) return 'monthly';
-            if (url.includes('8.99') || referrer.includes('8.99')) return 'quarterly';
-            if (url.includes('28.99') || referrer.includes('28.99')) return 'lifetime';
-
-            // Since you chose quarterly, default to that
-            console.log('⚠️ Could not detect plan, defaulting to quarterly (your choice)');
+            
+            if (referrer.includes('11daa790-271f-4c8a-99a8-66a70257c8de')) return 'monthly';
+            if (referrer.includes('2e110581-a036-4eae-ae77-d13f722b86b4')) return 'quarterly';
+            if (referrer.includes('1a13d48e-9cf8-4f41-bfdb-2bd7a5e6100e')) return 'lifetime';
+            
+            // Default fallback
+            console.log('⚠️ Could not detect plan, using quarterly as default');
             return 'quarterly';
         }
 
@@ -237,133 +202,87 @@
             console.log('🎉 Activating premium plan:', plan);
             
             try {
-                // Check if we're in extension context
+                // Check if we have access to chrome extension APIs
                 if (typeof chrome !== 'undefined' && chrome.storage) {
-                    // We're in extension context - use direct storage
-                    await activateInExtension(plan);
+                    // Direct activation in extension context
+                    const trialData = {
+                        isPaidUser: true,
+                        userPlanId: plan,
+                        purchaseDate: new Date().toISOString(),
+                        paymentVerified: true,
+                        activationSource: 'lemon_squeezy_success'
+                    };
+                    
+                    chrome.storage.sync.set({ threadai_trial_data: trialData }, () => {
+                        console.log('✅ Premium activated successfully');
+                        showSuccess();
+                    });
                 } else {
-                    // We're on external page - use localStorage method
-                    await activateViaLocalStorage(plan);
+                    // External page - use localStorage bridge
+                    const activationData = {
+                        isPaidUser: true,
+                        userPlanId: plan,
+                        purchaseDate: new Date().toISOString(),
+                        paymentVerified: true,
+                        activationSource: 'lemon_squeezy_success',
+                        timestamp: Date.now()
+                    };
+                    
+                    localStorage.setItem('threadai_premium_activation', JSON.stringify(activationData));
+                    console.log('✅ Activation data stored for extension pickup');
+                    showSuccess();
                 }
-                
             } catch (error) {
                 console.error('❌ Activation error:', error);
-                showActivationError();
+                showError();
             }
-        }
-
-        // Activate premium directly in extension context
-        async function activateInExtension(plan) {
-            const existing = await new Promise((resolve) => {
-                chrome.storage.sync.get(['threadai_trial_data'], (result) => {
-                    resolve(result.threadai_trial_data || {});
-                });
-            });
-
-            const premiumData = {
-                ...existing,
-                isPaidUser: true,
-                userPlanId: plan,
-                purchaseDate: new Date().toISOString(),
-                trialStarted: true,
-                paymentVerified: true,
-                activationSource: 'lemon_squeezy_success'
-            };
-
-            chrome.storage.sync.set({ threadai_trial_data: premiumData }, () => {
-                console.log('✅ Premium activated in storage with plan:', plan);
-                showSuccess();
-                
-                chrome.storage.local.set({
-                    'threadai_last_activation': Date.now(),
-                    'threadai_activation_plan': plan
-                });
-            });
-        }
-
-        // Activate premium via localStorage (for external page)
-        async function activateViaLocalStorage(plan) {
-            console.log('📡 Activating premium via localStorage method...');
-            
-            // Store activation data in localStorage for extension to pick up
-            const activationData = {
-                isPaidUser: true,
-                userPlanId: plan,
-                purchaseDate: new Date().toISOString(),
-                trialStarted: true,
-                paymentVerified: true,
-                activationSource: 'lemon_squeezy_success',
-                activationTimestamp: Date.now()
-            };
-            
-            // Store in localStorage with a special key
-            localStorage.setItem('threadai_premium_activation', JSON.stringify(activationData));
-            
-            console.log('✅ Activation data stored in localStorage');
-            showSuccess();
-            
-            // Show instructions to user
-            setTimeout(() => {
-                const status = document.getElementById('status');
-                status.innerHTML = '✅ Payment successful! Please open the ThreadAi extension to complete activation.';
-            }, 2000);
         }
 
         // Show success status
         function showSuccess() {
             const status = document.getElementById('status');
             const btn = document.getElementById('openExtensionBtn');
-
+            
             status.className = 'status success';
             status.innerHTML = '✅ Premium activated successfully!';
-
+            
             btn.disabled = false;
             btn.textContent = 'Open ThreadAi Extension';
-
+            
             // Update page title
             document.title = 'Premium Activated - ThreadAi';
         }
 
-        // Show activation error
-        function showActivationError() {
+        // Show error status
+        function showError() {
             const status = document.getElementById('status');
             const btn = document.getElementById('openExtensionBtn');
-
-            status.className = 'status processing';
+            
+            status.className = 'status error';
             status.innerHTML = '⚠️ Please open the ThreadAi extension to complete activation.';
-
+            
             btn.disabled = false;
             btn.textContent = 'Open ThreadAi Extension';
         }
 
-        // Open extension (show instructions)
+        // Open extension instructions
         function openExtension() {
             alert('Please click on the ThreadAi extension icon in your browser toolbar to start using your premium features!');
         }
 
-        // Add event listener for open extension button
-        function setupEventListeners() {
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add event listener for open extension button (avoiding CSP violations)
             const openBtn = document.getElementById('openExtensionBtn');
             if (openBtn) {
                 openBtn.addEventListener('click', openExtension);
             }
-        }
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            // Setup event listeners
-            setupEventListeners();
-
-            // Try to activate premium
-            try {
+            
+            // Start activation process
+            setTimeout(() => {
                 activatePremium();
-            } catch (error) {
-                console.error('Activation error:', error);
-                document.getElementById('status').innerHTML = '⚠️ Please open the ThreadAi extension to complete activation.';
-                document.getElementById('openExtensionBtn').disabled = false;
-            }
+            }, 1000);
         });
     </script>
 </body>
-
 </html>
