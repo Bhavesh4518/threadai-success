@@ -214,6 +214,16 @@
                 return customPlan;
             }
 
+            // Check stored plan from extension (when user clicked checkout)
+            const storedPlan = localStorage.getItem('threadai_selected_plan') || sessionStorage.getItem('threadai_selected_plan');
+            if (storedPlan) {
+                console.log('✅ Plan detected from stored selection:', storedPlan);
+                // Clean up the stored plan
+                localStorage.removeItem('threadai_selected_plan');
+                sessionStorage.removeItem('threadai_selected_plan');
+                return storedPlan;
+            }
+
             // Check URL hash
             const hash = window.location.hash.toLowerCase();
             if (hash.includes('monthly')) return 'monthly';
@@ -246,26 +256,9 @@
             if (currentUrl.includes('8.99') || referrer.includes('8.99')) return 'quarterly';
             if (currentUrl.includes('28.99') || referrer.includes('28.99')) return 'lifetime';
 
-            // Ask user to specify if we can't detect
-            console.log('⚠️ Could not auto-detect plan');
-
-            // Show a simple prompt to user
-            const userChoice = prompt('Which plan did you purchase?\n\n1 = Monthly ($2.99)\n2 = Quarterly ($8.99)\n3 = Lifetime ($28.99)\n\nEnter 1, 2, or 3:');
-
-            switch (userChoice) {
-                case '1':
-                    console.log('✅ User selected monthly plan');
-                    return 'monthly';
-                case '2':
-                    console.log('✅ User selected quarterly plan');
-                    return 'quarterly';
-                case '3':
-                    console.log('✅ User selected lifetime plan');
-                    return 'lifetime';
-                default:
-                    console.log('⚠️ Invalid selection, defaulting to quarterly');
-                    return 'quarterly';
-            }
+            // Default to quarterly (most popular plan) - no user prompt needed
+            console.log('⚠️ Could not auto-detect plan, defaulting to quarterly');
+            return 'quarterly';
         }
 
         // Activate premium in extension
