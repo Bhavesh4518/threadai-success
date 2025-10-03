@@ -283,8 +283,9 @@
             if (currentUrl.includes('28.99') || referrer.includes('28.99')) return 'lifetime';
 
             // Show a user-friendly plan confirmation
-            console.log('⚠️ Could not auto-detect plan, asking user to confirm');
-            return showPlanConfirmation();
+            console.log('⚠️ Could not auto-detect plan, showing plan selection UI');
+            showPlanConfirmation();
+            return null; // Will be set by user selection
         }
 
         // Show user-friendly plan confirmation
@@ -341,20 +342,96 @@
                 window.confirmPlan = (plan) => {
                     console.log('✅ User confirmed plan:', plan);
 
-                    // Restore the original success page content
-                    location.reload(); // This will restart the activation with the confirmed plan
-
-                    // Store the confirmed plan for the reload
+                    // Store the confirmed plan
                     sessionStorage.setItem('confirmed_plan', plan);
+
+                    // Update UI to show activation
+                    document.querySelector('.container').innerHTML = `
+                        <div class="success-icon">🎉</div>
+                        <h1>Payment Successful!</h1>
+                        <p>Activating your ${plan} premium plan...</p>
+                        <div class="status processing" id="status">
+                            🔄 Activating your premium account...
+                        </div>
+                        <div style="margin-top: 24px;">
+                            <button class="btn" id="openExtensionBtn" disabled>
+                                Open ThreadAi Extension
+                            </button>
+                        </div>
+                    `;
+
+                    // Activate premium directly
+                    activatePremiumWithPlan(plan);
 
                     resolve(plan);
                 };
             });
         }
 
+        // Activate premium with specific plan
+        async function activatePremiumWithPlan(plan) {
+            console.log('🎉 Activating premium plan:', plan);
+
+            try {
+                // Check if we have access to chrome extension APIs
+                if (typeof chrome !== 'undefined' && chrome.storage) {
+                    // Direct activation in extension context
+                    const trialData = {
+                        isPaidUser: true,
+                        userPlanId: plan,
+                        purchaseDate: new Date().toISOString(),
+                        paymentVerified: true,
+                        activationSource: 'lemon_squeezy_success'
+                    };
+
+                    chrome.storage.sync.set({ threadai_trial_data: trialData }, () => {
+                        console.log('✅ Premium activated successfully');
+                        showSuccess();
+                    });
+                } else {
+                    // External page - use multiple storage methods for persistence
+                    const persistentKey = btoa(Date.now() + '-' + Math.random()).slice(0, 16);
+                    const activationData = {
+                        isPaidUser: true,
+                        userPlanId: plan,
+                        purchaseDate: new Date().toISOString(),
+                        paymentVerified: true,
+                        activationSource: 'lemon_squeezy_success',
+                        timestamp: Date.now(),
+                        persistentKey: persistentKey
+                    };
+
+                    // Store in multiple places for persistence
+                    localStorage.setItem('threadai_premium_activation', JSON.stringify(activationData));
+                    sessionStorage.setItem('threadai_premium_activation', JSON.stringify(activationData));
+
+                    // Also store a persistent marker that survives reinstalls
+                    localStorage.setItem('threadai_premium_purchased', JSON.stringify({
+                        plan: plan,
+                        date: new Date().toISOString(),
+                        key: persistentKey,
+                        verified: true
+                    }));
+
+                    console.log('✅ Activation data stored for extension pickup');
+                    showSuccess();
+                }
+            } catch (error) {
+                console.error('❌ Activation error:', error);
+                showError();
+            }
+        }
+
         // Activate premium in extension
         async function activatePremium() {
             const plan = getPlanFromUrl();
+
+            // If plan detection failed, don't proceed with activation
+            if (!plan) {
+                console.log('⏳ Waiting for user to select plan...');
+                return;
+            }
+
             console.log('🎉 Activating premium plan:', plan);
 
             try {
